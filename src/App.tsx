@@ -56,6 +56,18 @@ export const App: React.FC<GameState> = () => {
 
     // Draw the ball
     context.fillRect(gameState.ballX, gameState.ballY, BALL_SIZE, BALL_SIZE);
+
+    // Game loop to update the game state
+    const gameLoop = setInterval(() => {
+      setGameState((prev) => ({
+        ...prev,
+        ballX: prev.ballX + 1,
+        ballY: prev.ballY + 1,
+      }));
+    }, 1000 / 60); // 60 FPS
+
+    // Clean up the game loop on unmount
+    return () => clearInterval(gameLoop);
   }, [gameState]);
 
   return (
