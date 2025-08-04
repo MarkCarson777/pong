@@ -64,7 +64,7 @@ export const App: React.FC<GameState> = () => {
     // Game loop to update the game state
     const gameLoop = setInterval(() => {
       setGameState((prev) => {
-        let { ballX, ballY, ballSpeedX, ballSpeedY } = prev;
+        let { ballX, ballY, ballSpeedX, ballSpeedY, computerY } = prev;
 
         // Move the ball in the x-axis by the ball's speed per frame
         ballX += ballSpeedX;
@@ -76,12 +76,20 @@ export const App: React.FC<GameState> = () => {
           ballSpeedY = -ballSpeedY;
         }
 
+        // Simple AI for the computer paddle
+        if (computerY + PADDLE_HEIGHT / 2 < ballY) {
+          computerY += 2; // Move down
+        } else {
+          computerY -= 2; // Move up
+        }
+
         return {
           ...prev,
           ballX,
           ballY,
           ballSpeedX,
           ballSpeedY,
+          computerY,
         };
       });
     }, 1000 / 60); // 60 FPS
