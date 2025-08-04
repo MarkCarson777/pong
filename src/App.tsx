@@ -1,9 +1,10 @@
 import { useRef } from "react";
+import type { GameState } from "./types/GameState";
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 400;
 
-export function App() {
+export const App: React.FC<GameState> = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   return (
@@ -17,4 +18,4 @@ export function App() {
       />
     </div>
   );
-}
+};
