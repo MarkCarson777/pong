@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import type { GameState } from "./types/GameState";
 
 const CANVAS_WIDTH = 800;
@@ -6,6 +6,11 @@ const CANVAS_HEIGHT = 400;
 
 export const App: React.FC<GameState> = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Initialises game state with ball at centre
+  const [gameState, setGameState] = useState<GameState>({
+    ballX: CANVAS_WIDTH / 2,
+    ballY: CANVAS_HEIGHT / 2,
+  });
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
