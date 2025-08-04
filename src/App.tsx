@@ -8,7 +8,7 @@ const PADDLE_HEIGHT = 40;
 
 export const App: React.FC<GameState> = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // Initialises game state with ball at centre
+  // Sets initial game state
   const [gameState, setGameState] = useState<GameState>({
     playerY: 0,
     ballX: CANVAS_WIDTH / 2,
