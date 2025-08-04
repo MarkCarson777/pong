@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { GameState } from "./types/GameState";
 
+// constants for the game dimensions and paddle size
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 400;
 const PADDLE_WIDTH = 10;
@@ -15,6 +16,7 @@ export const App: React.FC<GameState> = () => {
     ballY: CANVAS_HEIGHT / 2,
   });
 
+  // handles mouse movement to control the paddle
   const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
 
