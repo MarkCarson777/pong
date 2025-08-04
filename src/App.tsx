@@ -16,6 +16,7 @@ export const App: React.FC<GameState> = () => {
   // Sets initial game state
   const [gameState, setGameState] = useState<GameState>({
     playerY: 0,
+    computerY: 0,
     ballX: CANVAS_WIDTH / 2,
     ballY: CANVAS_HEIGHT / 2,
     ballSpeedX: BALL_SPEED,
@@ -88,9 +89,19 @@ export const App: React.FC<GameState> = () => {
     // Clear the canvas
     context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // Draw the player paddle
+    // Set the fill style for the paddle and ball
     context.fillStyle = "white";
+
+    // Draw the player paddle
     context.fillRect(0, gameState.playerY, PADDLE_WIDTH, PADDLE_HEIGHT);
+
+    // Draw the computer paddle
+    context.fillRect(
+      CANVAS_WIDTH - PADDLE_WIDTH,
+      gameState.computerY,
+      PADDLE_WIDTH,
+      PADDLE_HEIGHT
+    );
 
     // Draw the ball
     context.fillRect(gameState.ballX, gameState.ballY, BALL_SIZE, BALL_SIZE);
