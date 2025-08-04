@@ -9,6 +9,7 @@ const PADDLE_WIDTH = 10;
 const PADDLE_HEIGHT = 40;
 // Ball constants
 const BALL_SIZE = 10;
+const BALL_SPEED = 2;
 
 export const App: React.FC<GameState> = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,6 +18,8 @@ export const App: React.FC<GameState> = () => {
     playerY: 0,
     ballX: CANVAS_WIDTH / 2,
     ballY: CANVAS_HEIGHT / 2,
+    ballSpeedX: BALL_SPEED,
+    ballSpeedY: BALL_SPEED,
   });
 
   // Handles mouse movement to control the paddle
@@ -59,12 +62,38 @@ export const App: React.FC<GameState> = () => {
 
     // Game loop to update the game state
     const gameLoop = setInterval(() => {
-      setGameState((prev) => ({
-        ...prev,
-        ballX: prev.ballX + 1,
-        ballY: prev.ballY + 1,
-      }));
+      setGameState((prev) => {
+        let { ballX, ballY, ballSpeedX, ballSpeedY } = prev;
+
+        // Move the ball in the x-axis by the ball's speed per frame
+        ballX += ballSpeedX;
+        // Move the ball in the y-axis by the ball's speed per frame
+        ballY += ballSpeedY;
+
+        // Reverse the ball's vertical direction if it hits the top or bottom
+        if (ballY <= 0 || ballY >= CANVAS_HEIGHT - BALL_SIZE) {
+          ballSpeedY = -ballSpeedY;
+        }
+
+        return {
+          ...prev,
+          ballX,
+          ballY,
+          ballSpeedX,
+          ballSpeedY,
+        };
+      });
     }, 1000 / 60); // 60 FPS
+
+    // Clear the canvas
+    context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Draw the player paddle
+    context.fillStyle = "white";
+    context.fillRect(0, gameState.playerY, PADDLE_WIDTH, PADDLE_HEIGHT);
+
+    // Draw the ball
+    context.fillRect(gameState.ballX, gameState.ballY, BALL_SIZE, BALL_SIZE);
 
     // Clean up the game loop on unmount
     return () => clearInterval(gameLoop);

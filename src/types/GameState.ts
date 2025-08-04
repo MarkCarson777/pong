@@ -5,4 +5,8 @@ export interface GameState {
   ballX: number;
   /** Ball position in the y-axis */
   ballY: number;
+  /** Ball speed in the x-axis */
+  ballSpeedX: number;
+  /** Ball speed in the y-axis */
+  ballSpeedY: number;
 }
