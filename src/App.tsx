@@ -6,10 +6,10 @@ const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 400;
 // Paddle constants
 const PADDLE_WIDTH = 10;
-const PADDLE_HEIGHT = 40;
+const PADDLE_HEIGHT = 80;
 // Ball constants
 const BALL_SIZE = 10;
-const BALL_SPEED = 2;
+const BALL_SPEED = 7;
 
 export const App: React.FC<GameState> = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -63,6 +63,7 @@ export const App: React.FC<GameState> = () => {
 
     // Game loop to update the game state
     const gameLoop = setInterval(() => {
+      // TODO: Decouple the paddle movement from the game loop
       setGameState((prev) => {
         let { ballX, ballY, ballSpeedX, ballSpeedY, computerY } = prev;
 
@@ -76,11 +77,38 @@ export const App: React.FC<GameState> = () => {
           ballSpeedY = -ballSpeedY;
         }
 
-        // Simple AI for the computer paddle
+        // TODO: Improve the computer paddle AI
+        // Simple AI for the computer paddle to follow the ball
         if (computerY + PADDLE_HEIGHT / 2 < ballY) {
           computerY += 2; // Move down
         } else {
           computerY -= 2; // Move up
+        }
+
+        // Ensure the computer paddle stays within the canvas bounds
+        computerY = Math.max(
+          0,
+          Math.min(computerY, CANVAS_HEIGHT - PADDLE_HEIGHT)
+        );
+
+        // Check for collision with the player paddle
+        if (
+          ballX <= PADDLE_WIDTH &&
+          ballY + BALL_SIZE >= gameState.playerY &&
+          ballY <= gameState.playerY + PADDLE_HEIGHT
+        ) {
+          // Reverse the ball's direction in the x-axis
+          ballSpeedX = -ballSpeedX;
+        }
+
+        // Check for collision with the computer paddle
+        if (
+          ballX >= CANVAS_WIDTH - PADDLE_WIDTH - BALL_SIZE &&
+          ballY + BALL_SIZE >= computerY &&
+          ballY <= computerY + PADDLE_HEIGHT
+        ) {
+          // Reverse the ball's direction in the x-axis
+          ballSpeedX = -ballSpeedX;
         }
 
         return {
