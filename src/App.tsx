@@ -3,7 +3,8 @@ import type { GameState } from "./types/GameState";
 
 // TODO: Improve computer paddle AI
 // TODO: Add difficulty levels
-// TODO: Add starter countdown
+// TODO: Centre countdown
+// TODO: Figure out what to do with paddles during countdown
 
 // Canvas constants
 const CANVAS_WIDTH = 800;
@@ -32,6 +33,7 @@ export const App: React.FC<GameState> = () => {
     playerScore: 0,
     computerScore: 0,
   });
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   // Handles mouse movement to control the paddle
   const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -50,13 +52,36 @@ export const App: React.FC<GameState> = () => {
   };
 
   const onSpacePress = (e: KeyboardEvent) => {
-    if (e.code === "Space") {
+    if (e.code === "Space" && !countdown && isPausedRef.current === true) {
       // Prevent default spacebar behavior (scrolling)
       e.preventDefault();
-      // Start or resume the game
-      isPausedRef.current = false;
+      // Set the countdown
+      setCountdown(3);
     }
   };
+
+  useEffect(() => {
+    if (countdown === null) return;
+
+    // If countdown is greater than 0, decrement it every second
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+
+    // If countdown reaches 0, remove countdown and start the game
+    if (countdown === 0) {
+      const timer = setTimeout(() => {
+        setCountdown(null);
+        isPausedRef.current = false;
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
 
   useEffect(() => {
     // Add event listener for space key press to start the game
@@ -74,6 +99,18 @@ export const App: React.FC<GameState> = () => {
     // Clear the canvas
     context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+    if (countdown !== null && countdown > 0) {
+      context.fillStyle = "white";
+      context.font = "48px Arial";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillText(
+        countdown.toString(),
+        CANVAS_WIDTH / 2,
+        CANVAS_HEIGHT / 2
+      );
+    }
+
     // Draw the player paddle
     context.fillStyle = "white";
     context.fillRect(0, playerYRef.current, PADDLE_WIDTH, PADDLE_HEIGHT);
@@ -87,17 +124,19 @@ export const App: React.FC<GameState> = () => {
     );
 
     // Draw the ball
-    context.beginPath();
+    if (isPausedRef.current === false || countdown === 0) {
+      context.beginPath();
 
-    // context.arc(x, y, radius, startAngle, endAngle)
-    context.arc(
-      gameState.ballX + BALL_SIZE / 2,
-      gameState.ballY + BALL_SIZE / 2,
-      BALL_SIZE / 2,
-      0,
-      Math.PI * 2
-    );
-    context.fill();
+      // context.arc(x, y, radius, startAngle, endAngle)
+      context.arc(
+        gameState.ballX + BALL_SIZE / 2,
+        gameState.ballY + BALL_SIZE / 2,
+        BALL_SIZE / 2,
+        0,
+        Math.PI * 2
+      );
+      context.fill();
+    }
 
     // Game loop to update the game state
     const gameLoop = setInterval(() => {
@@ -191,7 +230,7 @@ export const App: React.FC<GameState> = () => {
 
     // Clean up the game loop on unmount
     return () => clearInterval(gameLoop);
-  }, [gameState]);
+  }, [gameState, countdown]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
