@@ -17,8 +17,12 @@ const BALL_SIZE = 10;
 const BALL_SPEED = 7;
 
 export const App: React.FC<GameState> = () => {
+  // Ref to the canvas element
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Ref to track the player's paddle position in the y-axis
   const playerYRef = useRef<number>(CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2);
+  // Ref to track if the game is paused
+  const isPausedRef = useRef<boolean>(true);
   // Sets initial game state
   const [gameState, setGameState] = useState<GameState>({
     computerY: 0,
@@ -46,6 +50,22 @@ export const App: React.FC<GameState> = () => {
     );
   };
 
+  const onSpacePress = (e: KeyboardEvent) => {
+    if (e.code === "Space") {
+      // Prevent default spacebar behavior (scrolling)
+      e.preventDefault();
+      // Start or resume the game
+      isPausedRef.current = false;
+    }
+  };
+
+  useEffect(() => {
+    // Add event listener for space key press to start the game
+    window.addEventListener("keydown", onSpacePress);
+    // Remove event listener on cleanup
+    return () => window.removeEventListener("keydown", onSpacePress);
+  }, []);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
@@ -59,11 +79,21 @@ export const App: React.FC<GameState> = () => {
     context.fillStyle = "white";
     context.fillRect(0, playerYRef.current, PADDLE_WIDTH, PADDLE_HEIGHT);
 
+    // Draw the computer paddle
+    context.fillRect(
+      CANVAS_WIDTH - PADDLE_WIDTH,
+      gameState.computerY,
+      PADDLE_WIDTH,
+      PADDLE_HEIGHT
+    );
+
     // Draw the ball
     context.fillRect(gameState.ballX, gameState.ballY, BALL_SIZE, BALL_SIZE);
 
     // Game loop to update the game state
     const gameLoop = setInterval(() => {
+      if (isPausedRef.current) return; // Skip updates if the game is paused
+
       setGameState((prev) => {
         let {
           ballX,
@@ -125,11 +155,16 @@ export const App: React.FC<GameState> = () => {
           ballY = CANVAS_HEIGHT / 2;
           // Increment computer score
           computerScore += 1;
+          // Pause the game at the end of the round
+          isPausedRef.current = true;
         } else if (ballX > CANVAS_WIDTH - BALL_SIZE) {
           // Computer missed the ball, reset the ball position
           ballX = CANVAS_WIDTH / 2;
           ballY = CANVAS_HEIGHT / 2;
+          // Increment player score
           playerScore += 1;
+          // Pause the game at the end of the round
+          isPausedRef.current = true;
         }
 
         return {
@@ -144,26 +179,6 @@ export const App: React.FC<GameState> = () => {
         };
       });
     }, 1000 / 60); // 60 FPS
-
-    // Clear the canvas
-    context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    // Set the fill style for the paddle and ball
-    context.fillStyle = "white";
-
-    // Draw the player paddle
-    context.fillRect(0, playerYRef.current, PADDLE_WIDTH, PADDLE_HEIGHT);
-
-    // Draw the computer paddle
-    context.fillRect(
-      CANVAS_WIDTH - PADDLE_WIDTH,
-      gameState.computerY,
-      PADDLE_WIDTH,
-      PADDLE_HEIGHT
-    );
-
-    // Draw the ball
-    context.fillRect(gameState.ballX, gameState.ballY, BALL_SIZE, BALL_SIZE);
 
     // Clean up the game loop on unmount
     return () => clearInterval(gameLoop);
