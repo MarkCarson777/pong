@@ -1,6 +1,4 @@
 export interface GameState {
-  /** Player position in the y-axis */
-  playerY: number;
   /** Computer position in the y-axis */
   computerY: number;
   /** Ball position in the x-axis */

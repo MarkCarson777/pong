@@ -13,9 +13,9 @@ const BALL_SPEED = 7;
 
 export const App: React.FC<GameState> = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const playerYRef = useRef<number>(CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2);
   // Sets initial game state
   const [gameState, setGameState] = useState<GameState>({
-    playerY: 0,
     computerY: 0,
     ballX: CANVAS_WIDTH / 2,
     ballY: CANVAS_HEIGHT / 2,
@@ -32,17 +32,11 @@ export const App: React.FC<GameState> = () => {
     // Get the mouse position relative to the canvas
     const rect = canvas.getBoundingClientRect();
     const mouseY = e.clientY - rect.top;
-
     // Ensure the paddle stays within the canvas bounds
-    const newPlayerPosition = Math.max(
+    playerYRef.current = Math.max(
       0,
-      Math.min(mouseY - PADDLE_HEIGHT / 2, CANVAS_HEIGHT - PADDLE_HEIGHT)
+      Math.min(mouseY, CANVAS_HEIGHT - PADDLE_HEIGHT)
     );
-
-    setGameState((prevState) => ({
-      ...prevState,
-      playerY: newPlayerPosition,
-    }));
   };
 
   useEffect(() => {
@@ -56,14 +50,13 @@ export const App: React.FC<GameState> = () => {
 
     // Draw the player paddle
     context.fillStyle = "white";
-    context.fillRect(0, gameState.playerY, PADDLE_WIDTH, PADDLE_HEIGHT);
+    context.fillRect(0, playerYRef.current, PADDLE_WIDTH, PADDLE_HEIGHT);
 
     // Draw the ball
     context.fillRect(gameState.ballX, gameState.ballY, BALL_SIZE, BALL_SIZE);
 
     // Game loop to update the game state
     const gameLoop = setInterval(() => {
-      // TODO: Decouple the paddle movement from the game loop
       setGameState((prev) => {
         let { ballX, ballY, ballSpeedX, ballSpeedY, computerY } = prev;
 
@@ -94,8 +87,8 @@ export const App: React.FC<GameState> = () => {
         // Check for collision with the player paddle
         if (
           ballX <= PADDLE_WIDTH &&
-          ballY + BALL_SIZE >= gameState.playerY &&
-          ballY <= gameState.playerY + PADDLE_HEIGHT
+          ballY + BALL_SIZE >= playerYRef.current &&
+          ballY <= playerYRef.current + PADDLE_HEIGHT
         ) {
           // Reverse the ball's direction in the x-axis
           ballSpeedX = -ballSpeedX;
@@ -129,7 +122,7 @@ export const App: React.FC<GameState> = () => {
     context.fillStyle = "white";
 
     // Draw the player paddle
-    context.fillRect(0, gameState.playerY, PADDLE_WIDTH, PADDLE_HEIGHT);
+    context.fillRect(0, playerYRef.current, PADDLE_WIDTH, PADDLE_HEIGHT);
 
     // Draw the computer paddle
     context.fillRect(
