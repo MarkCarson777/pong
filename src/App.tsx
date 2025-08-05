@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { GameState } from "./types/GameState";
 
-// TODO: Add start/restart game functionality
 // TODO: Improve computer paddle AI
 // TODO: Add difficulty levels
 // TODO: Add starter countdown
@@ -13,7 +12,7 @@ const CANVAS_HEIGHT = 400;
 const PADDLE_WIDTH = 10;
 const PADDLE_HEIGHT = 80;
 // Ball constants
-const BALL_SIZE = 10;
+const BALL_SIZE = 12;
 const BALL_SPEED = 7;
 
 export const App: React.FC<GameState> = () => {
@@ -88,7 +87,17 @@ export const App: React.FC<GameState> = () => {
     );
 
     // Draw the ball
-    context.fillRect(gameState.ballX, gameState.ballY, BALL_SIZE, BALL_SIZE);
+    context.beginPath();
+
+    // context.arc(x, y, radius, startAngle, endAngle)
+    context.arc(
+      gameState.ballX + BALL_SIZE / 2,
+      gameState.ballY + BALL_SIZE / 2,
+      BALL_SIZE / 2,
+      0,
+      Math.PI * 2
+    );
+    context.fill();
 
     // Game loop to update the game state
     const gameLoop = setInterval(() => {
