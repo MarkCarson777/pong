@@ -9,4 +9,8 @@ export interface GameState {
   ballSpeedX: number;
   /** Ball speed in the y-axis */
   ballSpeedY: number;
+  /** Player score */
+  playerScore: number;
+  /** Computer score */
+  computerScore: number;
 }

@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import type { GameState } from "./types/GameState";
 
+// TODO: Add start/restart game functionality
+// TODO: Improve computer paddle AI
+// TODO: Add difficulty levels
+// TODO: Add starter countdown
+
 // Canvas constants
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 400;
@@ -21,6 +26,8 @@ export const App: React.FC<GameState> = () => {
     ballY: CANVAS_HEIGHT / 2,
     ballSpeedX: BALL_SPEED,
     ballSpeedY: BALL_SPEED,
+    playerScore: 0,
+    computerScore: 0,
   });
 
   // Handles mouse movement to control the paddle
@@ -58,7 +65,15 @@ export const App: React.FC<GameState> = () => {
     // Game loop to update the game state
     const gameLoop = setInterval(() => {
       setGameState((prev) => {
-        let { ballX, ballY, ballSpeedX, ballSpeedY, computerY } = prev;
+        let {
+          ballX,
+          ballY,
+          ballSpeedX,
+          ballSpeedY,
+          computerY,
+          playerScore,
+          computerScore,
+        } = prev;
 
         // Move the ball in the x-axis by the ball's speed per frame
         ballX += ballSpeedX;
@@ -70,7 +85,6 @@ export const App: React.FC<GameState> = () => {
           ballSpeedY = -ballSpeedY;
         }
 
-        // TODO: Improve the computer paddle AI
         // Simple AI for the computer paddle to follow the ball
         if (computerY + PADDLE_HEIGHT / 2 < ballY) {
           computerY += 2; // Move down
@@ -104,6 +118,20 @@ export const App: React.FC<GameState> = () => {
           ballSpeedX = -ballSpeedX;
         }
 
+        // Check if the ball goes out of bounds
+        if (ballX < 0) {
+          // Player missed the ball, reset the ball position
+          ballX = CANVAS_WIDTH / 2;
+          ballY = CANVAS_HEIGHT / 2;
+          // Increment computer score
+          computerScore += 1;
+        } else if (ballX > CANVAS_WIDTH - BALL_SIZE) {
+          // Computer missed the ball, reset the ball position
+          ballX = CANVAS_WIDTH / 2;
+          ballY = CANVAS_HEIGHT / 2;
+          playerScore += 1;
+        }
+
         return {
           ...prev,
           ballX,
@@ -111,6 +139,8 @@ export const App: React.FC<GameState> = () => {
           ballSpeedX,
           ballSpeedY,
           computerY,
+          playerScore,
+          computerScore,
         };
       });
     }, 1000 / 60); // 60 FPS
@@ -142,13 +172,23 @@ export const App: React.FC<GameState> = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
       <h1 className="text-4xl font-bold text-white mb-4">Pong</h1>
-      <canvas
-        ref={canvasRef}
-        height={CANVAS_HEIGHT}
-        width={CANVAS_WIDTH}
-        className="border-2 border-white bg-black"
-        onMouseMove={onMouseMove}
-      />
+      <div className="flex items-center gap-4">
+        <div>
+          <p className="text-white">Player Score: {gameState.playerScore}</p>
+        </div>
+        <canvas
+          ref={canvasRef}
+          height={CANVAS_HEIGHT}
+          width={CANVAS_WIDTH}
+          className="border-2 border-white bg-black"
+          onMouseMove={onMouseMove}
+        />
+        <div>
+          <p className="text-white">
+            Computer Score: {gameState.computerScore}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
