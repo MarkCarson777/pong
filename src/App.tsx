@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import type { GameState } from "./types/GameState";
 import { Scoreboard } from "./components/Scoreboard";
 
@@ -37,9 +37,8 @@ export const App: React.FC = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
 
   // Handles mouse movement to control the paddle
-  const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
-
     if (!canvas) return;
 
     // Get the mouse position relative to the canvas
@@ -52,16 +51,24 @@ export const App: React.FC = () => {
     );
   };
 
-  const onSpacePress = (e: KeyboardEvent) => {
-    if (e.code === "Space" && !countdown && isPausedRef.current === true) {
-      // Prevent default spacebar behavior (scrolling)
-      e.preventDefault();
-      // Set the countdown
-      setCountdown(3);
-    }
-  };
+  // Handles space key press to start the countdown
+  const handleSpacePress = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.code === "Space" && !countdown && isPausedRef.current === true) {
+        e.preventDefault();
+        setCountdown(3);
+      }
+    },
+    [countdown]
+  );
 
-  // Countdown effect
+  // Add event listener to trigger countdown on space key press
+  useEffect(() => {
+    window.addEventListener("keydown", handleSpacePress);
+    return () => window.removeEventListener("keydown", handleSpacePress);
+  }, [handleSpacePress]);
+
+  // Countdown
   useEffect(() => {
     if (countdown === null) return;
 
@@ -76,13 +83,6 @@ export const App: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [countdown]);
-
-  useEffect(() => {
-    // Add event listener for space key press to start the game
-    window.addEventListener("keydown", onSpacePress);
-    // Remove event listener on cleanup
-    return () => window.removeEventListener("keydown", onSpacePress);
-  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -235,7 +235,7 @@ export const App: React.FC = () => {
           height={CANVAS_HEIGHT}
           width={CANVAS_WIDTH}
           className="border-2 border-white bg-black"
-          onMouseMove={onMouseMove}
+          onMouseMove={handleMouseMove}
         />
         <Scoreboard
           playerScore={gameState.playerScore}
