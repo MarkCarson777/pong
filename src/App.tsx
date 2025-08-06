@@ -1,12 +1,14 @@
 import { useState, useRef, useCallback } from "react";
 import type { GameState } from "./types/GameState";
+
 import { Scoreboard } from "./components/Scoreboard";
 import { useCanvasRenderer } from "./hooks/useCanvasRenderer";
 import { useCountdown } from "./hooks/useCountdown";
 import { useKeyboardControls } from "./hooks/useKeyboardControls";
 import { usePlayerPosition } from "./hooks/usePlayerPosition";
-import { CANVAS, PADDLE, BALL } from "./constants/gameConstants";
 import { useGameState } from "./hooks/useGameState";
+
+import { CANVAS, PADDLE, BALL } from "./constants/gameConstants";
 
 // TODO: Improve computer paddle AI
 // TODO: Add difficulty levels
@@ -16,13 +18,16 @@ import { useGameState } from "./hooks/useGameState";
 // TODO: Improve design
 
 export const App: React.FC = () => {
-  // Ref to the canvas element
+  /** -------------
+   * Refs
+   * ----------- */
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // Ref to track the player's paddle position in the y-axis
   const playerYRef = useRef<number>(CANVAS.HEIGHT / 2 - PADDLE.HEIGHT / 2);
-  // Ref to track if the game is paused
   const isPausedRef = useRef<boolean>(true);
-  // Sets initial game state
+
+  /** -------------
+   * State
+   * ----------- */
   const [gameState, setGameState] = useState<GameState>({
     computerY: 0,
     ballX: CANVAS.WIDTH / 2,
@@ -35,6 +40,9 @@ export const App: React.FC = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [renderTrigger, setRenderTrigger] = useState<number>(0);
 
+  /** -------------
+   * Keyboard Controls
+   * ----------- */
   const handleSpacePress = useCallback(() => {
     if (!countdown && isPausedRef.current === true) {
       setCountdown(3);
@@ -43,6 +51,9 @@ export const App: React.FC = () => {
 
   useKeyboardControls(handleSpacePress);
 
+  /** -------------
+   * Custom Hooks
+   * ----------- */
   const { handleMouseMove } = usePlayerPosition(
     canvasRef,
     playerYRef,
