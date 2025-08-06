@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { GameState } from "./types/GameState";
 import { Scoreboard } from "./components/Scoreboard";
+import { useKeyboardControls } from "./hooks/useKeyboardControls";
 
 // TODO: Improve computer paddle AI
 // TODO: Add difficulty levels
@@ -40,6 +41,14 @@ export const App: React.FC = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [renderTrigger, setRenderTrigger] = useState<number>(0);
 
+  const handleSpacePress = useCallback(() => {
+    if (!countdown && isPausedRef.current === true) {
+      setCountdown(3);
+    }
+  }, [countdown]);
+
+  useKeyboardControls(handleSpacePress);
+
   // Handles mouse movement to control the paddle
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -57,23 +66,6 @@ export const App: React.FC = () => {
     // Trigger a re-render to update paddle position immediately
     setRenderTrigger((prev) => prev + 1);
   };
-
-  // Handles space key press to start the countdown
-  const handleSpacePress = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.code === "Space" && !countdown && isPausedRef.current === true) {
-        e.preventDefault();
-        setCountdown(3);
-      }
-    },
-    [countdown]
-  );
-
-  // Add event listener to trigger countdown on space key press
-  useEffect(() => {
-    window.addEventListener("keydown", handleSpacePress);
-    return () => window.removeEventListener("keydown", handleSpacePress);
-  }, [handleSpacePress]);
 
   // Countdown
   useEffect(() => {
