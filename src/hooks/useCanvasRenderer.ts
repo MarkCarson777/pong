@@ -1,14 +1,6 @@
 import { useEffect } from "react";
 import type { GameState } from "../types/GameState";
-
-// Canvas constants
-const CANVAS_WIDTH = 800;
-const CANVAS_HEIGHT = 400;
-// Paddle constants
-const PADDLE_WIDTH = 10;
-const PADDLE_HEIGHT = 80;
-// Ball constants
-const BALL_SIZE = 12;
+import { CANVAS, PADDLE, BALL } from "../constants/gameConstants";
 
 export const useCanvasRenderer = (
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -26,7 +18,7 @@ export const useCanvasRenderer = (
     if (!canvas || !context) return;
 
     // Clear the canvas
-    context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    context.clearRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
 
     // Draw countdown if active
     if (countdown !== null && countdown > 0) {
@@ -36,30 +28,30 @@ export const useCanvasRenderer = (
       context.textBaseline = "middle";
       context.fillText(
         countdown.toString(),
-        CANVAS_WIDTH / 2,
-        CANVAS_HEIGHT / 2
+        CANVAS.WIDTH / 2,
+        CANVAS.HEIGHT / 2
       );
     }
 
     // Draw the player paddle
     context.fillStyle = "white";
-    context.fillRect(0, playerYRef.current, PADDLE_WIDTH, PADDLE_HEIGHT);
+    context.fillRect(0, playerYRef.current, PADDLE.WIDTH, PADDLE.HEIGHT);
 
     // Draw the computer paddle
     context.fillRect(
-      CANVAS_WIDTH - PADDLE_WIDTH,
+      CANVAS.WIDTH - PADDLE.WIDTH,
       gameState.computerY,
-      PADDLE_WIDTH,
-      PADDLE_HEIGHT
+      PADDLE.WIDTH,
+      PADDLE.HEIGHT
     );
 
     // Draw the ball
     if (isPausedRef.current === false || countdown === 0) {
       context.beginPath();
       context.arc(
-        gameState.ballX + BALL_SIZE / 2,
-        gameState.ballY + BALL_SIZE / 2,
-        BALL_SIZE / 2,
+        gameState.ballX + BALL.SIZE / 2,
+        gameState.ballY + BALL.SIZE / 2,
+        BALL.SIZE / 2,
         0,
         Math.PI * 2
       );
