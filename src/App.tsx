@@ -142,98 +142,103 @@ export const App: React.FC = () => {
 
   // Game loop to update the game state
   useEffect(() => {
-    const gameLoop = setInterval(() => {
-      if (isPausedRef.current) return; // Skip updates if the game is paused
+    let animationFrameId: number;
 
-      setGameState((prev) => {
-        let {
-          ballX,
-          ballY,
-          ballSpeedX,
-          ballSpeedY,
-          computerY,
-          playerScore,
-          computerScore,
-        } = prev;
+    const update = () => {
+      if (!isPausedRef.current) {
+        setGameState((prev) => {
+          let {
+            ballX,
+            ballY,
+            ballSpeedX,
+            ballSpeedY,
+            computerY,
+            playerScore,
+            computerScore,
+          } = prev;
 
-        // Move the ball in the x-axis by the ball's speed per frame
-        ballX += ballSpeedX;
-        // Move the ball in the y-axis by the ball's speed per frame
-        ballY += ballSpeedY;
+          // Move the ball in the x-axis by the ball's speed per frame
+          ballX += ballSpeedX;
+          // Move the ball in the y-axis by the ball's speed per frame
+          ballY += ballSpeedY;
 
-        // Reverse the ball's vertical direction if it hits the top or bottom
-        if (ballY <= 0 || ballY >= CANVAS_HEIGHT - BALL_SIZE) {
-          ballSpeedY = -ballSpeedY;
-        }
+          // Reverse the ball's vertical direction if it hits the top or bottom
+          if (ballY <= 0 || ballY >= CANVAS_HEIGHT - BALL_SIZE) {
+            ballSpeedY = -ballSpeedY;
+          }
 
-        // Simple AI for the computer paddle to follow the ball
-        if (computerY + PADDLE_HEIGHT / 2 < ballY) {
-          computerY += 2; // Move down
-        } else {
-          computerY -= 2; // Move up
-        }
+          // Simple AI for the computer paddle to follow the ball
+          if (computerY + PADDLE_HEIGHT / 2 < ballY) {
+            computerY += 2; // Move down
+          } else {
+            computerY -= 2; // Move up
+          }
 
-        // Ensure the computer paddle stays within the canvas bounds
-        computerY = Math.max(
-          0,
-          Math.min(computerY, CANVAS_HEIGHT - PADDLE_HEIGHT)
-        );
+          // Ensure the computer paddle stays within the canvas bounds
+          computerY = Math.max(
+            0,
+            Math.min(computerY, CANVAS_HEIGHT - PADDLE_HEIGHT)
+          );
 
-        // Check for collision with the player paddle
-        if (
-          ballX <= PADDLE_WIDTH &&
-          ballY + BALL_SIZE >= playerYRef.current &&
-          ballY <= playerYRef.current + PADDLE_HEIGHT
-        ) {
-          // Reverse the ball's direction in the x-axis
-          ballSpeedX = -ballSpeedX;
-        }
+          // Check for collision with the player paddle
+          if (
+            ballX <= PADDLE_WIDTH &&
+            ballY + BALL_SIZE >= playerYRef.current &&
+            ballY <= playerYRef.current + PADDLE_HEIGHT
+          ) {
+            // Reverse the ball's direction in the x-axis
+            ballSpeedX = -ballSpeedX;
+          }
 
-        // Check for collision with the computer paddle
-        if (
-          ballX >= CANVAS_WIDTH - PADDLE_WIDTH - BALL_SIZE &&
-          ballY + BALL_SIZE >= computerY &&
-          ballY <= computerY + PADDLE_HEIGHT
-        ) {
-          // Reverse the ball's direction in the x-axis
-          ballSpeedX = -ballSpeedX;
-          // Prevent the ball from getting stuck in the paddle
-          ballX = CANVAS_WIDTH - PADDLE_WIDTH - BALL_SIZE - 1;
-        }
+          // Check for collision with the computer paddle
+          if (
+            ballX >= CANVAS_WIDTH - PADDLE_WIDTH - BALL_SIZE &&
+            ballY + BALL_SIZE >= computerY &&
+            ballY <= computerY + PADDLE_HEIGHT
+          ) {
+            // Reverse the ball's direction in the x-axis
+            ballSpeedX = -ballSpeedX;
+            // Prevent the ball from getting stuck in the paddle
+            ballX = CANVAS_WIDTH - PADDLE_WIDTH - BALL_SIZE - 1;
+          }
 
-        // Check if the ball goes out of bounds
-        if (ballX < 0) {
-          // Player missed the ball, reset the ball position
-          ballX = CANVAS_WIDTH / 2;
-          ballY = CANVAS_HEIGHT / 2;
-          // Increment computer score
-          computerScore += 1;
-          // Pause the game at the end of the round
-          isPausedRef.current = true;
-        } else if (ballX > CANVAS_WIDTH - BALL_SIZE) {
-          // Computer missed the ball, reset the ball position
-          ballX = CANVAS_WIDTH / 2;
-          ballY = CANVAS_HEIGHT / 2;
-          // Increment player score
-          playerScore += 1;
-          // Pause the game at the end of the round
-          isPausedRef.current = true;
-        }
+          // Check if the ball goes out of bounds
+          if (ballX < 0) {
+            // Player missed the ball, reset the ball position
+            ballX = CANVAS_WIDTH / 2;
+            ballY = CANVAS_HEIGHT / 2;
+            // Increment computer score
+            computerScore += 1;
+            // Pause the game at the end of the round
+            isPausedRef.current = true;
+          } else if (ballX > CANVAS_WIDTH - BALL_SIZE) {
+            // Computer missed the ball, reset the ball position
+            ballX = CANVAS_WIDTH / 2;
+            ballY = CANVAS_HEIGHT / 2;
+            // Increment player score
+            playerScore += 1;
+            // Pause the game at the end of the round
+            isPausedRef.current = true;
+          }
 
-        return {
-          ...prev,
-          ballX,
-          ballY,
-          ballSpeedX,
-          ballSpeedY,
-          computerY,
-          playerScore,
-          computerScore,
-        };
-      });
-    }, 1000 / 60); // 60 FPS
+          return {
+            ...prev,
+            ballX,
+            ballY,
+            ballSpeedX,
+            ballSpeedY,
+            computerY,
+            playerScore,
+            computerScore,
+          };
+        });
+      }
+      animationFrameId = requestAnimationFrame(update);
+    };
 
-    return () => clearInterval(gameLoop);
+    animationFrameId = requestAnimationFrame(update);
+
+    return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
   return (
