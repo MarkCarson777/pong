@@ -1,3 +1,5 @@
+import { cn } from "@sglara/cn";
+
 interface Props {
   playerScore: number;
   computerScore: number;
@@ -10,14 +12,14 @@ export const Scoreboard: React.FC<Props> = ({
   className,
 }) => {
   return (
-    <div className={className}>
-      <div>
-        <span>Player</span>
-        <p>{playerScore}</p>
+    <div className={cn("flex justify-between w-full", className)}>
+      <div className="flex flex-col items-center">
+        <span className="text-white">Player</span>
+        <p className="text-white">{playerScore}</p>
       </div>
-      <div>
-        <label>Computer</label>
-        <p>{computerScore}</p>
+      <div className="flex flex-col items-center">
+        <label className="text-white">Computer</label>
+        <p className="text-white">{computerScore}</p>
       </div>
     </div>
   );

@@ -236,7 +236,7 @@ export const App: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
       <h1 className="text-4xl font-bold text-white mb-4">Pong</h1>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col items-center gap-4">
         <canvas
           ref={canvasRef}
           height={CANVAS_HEIGHT}
@@ -244,7 +244,10 @@ export const App: React.FC = () => {
           className="border-2 border-white bg-black"
           onMouseMove={onMouseMove}
         />
-        <Scoreboard playerScore={1} computerScore={1} />
+        <Scoreboard
+          playerScore={gameState.playerScore}
+          computerScore={gameState.computerScore}
+        />
       </div>
     </div>
   );
