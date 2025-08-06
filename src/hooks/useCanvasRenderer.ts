@@ -2,6 +2,16 @@ import { useEffect } from "react";
 import type { GameState } from "../types/GameState";
 import { CANVAS, PADDLE, BALL } from "../constants/gameConstants";
 
+/** useCanvasRenderer is a custom hook that handles rendering the game state on a canvas element.
+ * It draws the player paddle, computer paddle, ball and countdown.
+ * @param canvasRef - A reference to the HTML canvas element where the game will be rendered.
+ * @param gameState - The current state of the game, including positions of the paddles and ball.
+ * @param countdown - The current countdown value, if applicable. If null, no countdown is displayed.
+ * @param renderTrigger - A trigger to force re-rendering of the canvas when necessary.
+ * @param playerYRef - A reference to the player's paddle Y position, allowing for immediate updates.
+ * @param isPausedRef - A reference to the paused state of the game, allowing for conditional rendering of the ball.
+ */
+
 export const useCanvasRenderer = (
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   gameState: GameState,
@@ -10,7 +20,6 @@ export const useCanvasRenderer = (
   playerYRef: React.RefObject<number>,
   isPausedRef: React.RefObject<boolean>
 ) => {
-  // Draw the game state on the canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
@@ -20,7 +29,7 @@ export const useCanvasRenderer = (
     // Clear the canvas
     context.clearRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
 
-    // Draw countdown if active
+    // Draw countdown if applicable
     if (countdown !== null && countdown > 0) {
       context.fillStyle = "white";
       context.font = "48px Arial";
