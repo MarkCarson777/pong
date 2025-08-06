@@ -2,7 +2,9 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import type { GameState } from "./types/GameState";
 import { Scoreboard } from "./components/Scoreboard";
 import { useCanvasRenderer } from "./hooks/useCanvasRenderer";
+import { useCountdown } from "./hooks/useCountdown";
 import { useKeyboardControls } from "./hooks/useKeyboardControls";
+import { usePlayerPosition } from "./hooks/usePlayerPosition";
 import { CANVAS, PADDLE, BALL } from "./constants/gameConstants";
 
 // TODO: Improve computer paddle AI
@@ -40,39 +42,13 @@ export const App: React.FC = () => {
 
   useKeyboardControls(handleSpacePress);
 
-  // Handles mouse movement to control the paddle
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const { handleMouseMove } = usePlayerPosition(
+    canvasRef,
+    playerYRef,
+    setRenderTrigger
+  );
 
-    // Get the mouse position relative to the canvas
-    const rect = canvas.getBoundingClientRect();
-    const mouseY = e.clientY - rect.top;
-    // Ensure the paddle stays within the canvas bounds
-    playerYRef.current = Math.max(
-      0,
-      Math.min(mouseY, CANVAS.HEIGHT - PADDLE.HEIGHT)
-    );
-
-    // Trigger a re-render to update paddle position immediately
-    setRenderTrigger((prev) => prev + 1);
-  };
-
-  // Countdown
-  useEffect(() => {
-    if (countdown === null) return;
-
-    const timer = setTimeout(() => {
-      if (countdown > 0) {
-        setCountdown(countdown - 1);
-      } else {
-        setCountdown(null);
-        isPausedRef.current = false;
-      }
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [countdown]);
+  useCountdown(countdown, setCountdown, isPausedRef);
 
   useCanvasRenderer(
     canvasRef,
@@ -83,7 +59,7 @@ export const App: React.FC = () => {
     isPausedRef
   );
 
-  // Game loop to update the game state
+  // Game loop
   useEffect(() => {
     let animationFrameId: number;
 

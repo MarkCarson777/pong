@@ -2,7 +2,7 @@ import { useCallback, useEffect } from "react";
 
 // TODO: Improve to handle other keys for different controls
 
-/** useKeyboardControls is a custom hook that listens for keyboard events.
+/** useKeyboardControls is a hook that listens for keyboard events.
  * It triggers a callback function when the spacebar is pressed.
  * @param onSpacePress - A callback function to be called when the spacebar is pressed.
  */
