@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import type { GameState } from "./types/GameState";
+import { Scoreboard } from "./components/Scoreboard";
 
 // TODO: Improve computer paddle AI
 // TODO: Add difficulty levels
 // TODO: Centre countdown
-// TODO: Figure out what to do with paddles during countdown and inbetween rerenders
+// TODO: Figure out what to do with paddles during countdown and inbetween renders
 
 // Canvas constants
 const CANVAS_WIDTH = 800;
@@ -236,9 +237,6 @@ export const App: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
       <h1 className="text-4xl font-bold text-white mb-4">Pong</h1>
       <div className="flex items-center gap-4">
-        <div>
-          <p className="text-white">Player Score: {gameState.playerScore}</p>
-        </div>
         <canvas
           ref={canvasRef}
           height={CANVAS_HEIGHT}
@@ -246,11 +244,7 @@ export const App: React.FC = () => {
           className="border-2 border-white bg-black"
           onMouseMove={onMouseMove}
         />
-        <div>
-          <p className="text-white">
-            Computer Score: {gameState.computerScore}
-          </p>
-        </div>
+        <Scoreboard playerScore={1} computerScore={1} />
       </div>
     </div>
   );
