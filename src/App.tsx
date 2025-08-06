@@ -4,7 +4,7 @@ import type { GameState } from "./types/GameState";
 // TODO: Improve computer paddle AI
 // TODO: Add difficulty levels
 // TODO: Centre countdown
-// TODO: Figure out what to do with paddles during countdown
+// TODO: Figure out what to do with paddles during countdown and inbetween rerenders
 
 // Canvas constants
 const CANVAS_WIDTH = 800;
@@ -16,7 +16,7 @@ const PADDLE_HEIGHT = 80;
 const BALL_SIZE = 12;
 const BALL_SPEED = 7;
 
-export const App: React.FC<GameState> = () => {
+export const App: React.FC = () => {
   // Ref to the canvas element
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // Ref to track the player's paddle position in the y-axis
