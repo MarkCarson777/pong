@@ -5,7 +5,8 @@ import { Scoreboard } from "./components/Scoreboard";
 // TODO: Improve computer paddle AI
 // TODO: Add difficulty levels
 // TODO: Centre countdown
-// TODO: Figure out what to do with paddles during countdown and inbetween renders
+// TODO: Health points
+// TODO: Round timer
 
 // Canvas constants
 const CANVAS_WIDTH = 800;
@@ -35,6 +36,7 @@ export const App: React.FC = () => {
     computerScore: 0,
   });
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [renderTrigger, setRenderTrigger] = useState<number>(0);
 
   // Handles mouse movement to control the paddle
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -49,6 +51,9 @@ export const App: React.FC = () => {
       0,
       Math.min(mouseY, CANVAS_HEIGHT - PADDLE_HEIGHT)
     );
+
+    // Trigger a re-render to update paddle position immediately
+    setRenderTrigger((prev) => prev + 1);
   };
 
   // Handles space key press to start the countdown
@@ -84,6 +89,7 @@ export const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, [countdown]);
 
+  // Draw the game state on the canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
@@ -93,6 +99,7 @@ export const App: React.FC = () => {
     // Clear the canvas
     context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+    // Draw countdown if active
     if (countdown !== null && countdown > 0) {
       context.fillStyle = "white";
       context.font = "48px Arial";
@@ -120,8 +127,6 @@ export const App: React.FC = () => {
     // Draw the ball
     if (isPausedRef.current === false || countdown === 0) {
       context.beginPath();
-
-      // context.arc(x, y, radius, startAngle, endAngle)
       context.arc(
         gameState.ballX + BALL_SIZE / 2,
         gameState.ballY + BALL_SIZE / 2,
@@ -131,8 +136,10 @@ export const App: React.FC = () => {
       );
       context.fill();
     }
+  }, [gameState, countdown, renderTrigger]);
 
-    // Game loop to update the game state
+  // Game loop to update the game state
+  useEffect(() => {
     const gameLoop = setInterval(() => {
       if (isPausedRef.current) return; // Skip updates if the game is paused
 
@@ -224,7 +231,7 @@ export const App: React.FC = () => {
 
     // Clean up the game loop on unmount
     return () => clearInterval(gameLoop);
-  }, [gameState, countdown]);
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
@@ -234,7 +241,7 @@ export const App: React.FC = () => {
           ref={canvasRef}
           height={CANVAS_HEIGHT}
           width={CANVAS_WIDTH}
-          className="border-2 border-white bg-black"
+          className="border-2 border-white bg-black rounded-2xl"
           onMouseMove={handleMouseMove}
         />
         <Scoreboard
