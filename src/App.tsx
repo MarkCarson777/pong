@@ -7,6 +7,8 @@ import { Scoreboard } from "./components/Scoreboard";
 // TODO: Centre countdown
 // TODO: Health points
 // TODO: Round timer
+// TODO: Improve design
+// TODO: Improve paddle collision detection
 
 // Canvas constants
 const CANVAS_WIDTH = 800;
@@ -195,6 +197,8 @@ export const App: React.FC = () => {
         ) {
           // Reverse the ball's direction in the x-axis
           ballSpeedX = -ballSpeedX;
+          // Prevent the ball from getting stuck in the paddle
+          ballX = CANVAS_WIDTH - PADDLE_WIDTH - BALL_SIZE - 1;
         }
 
         // Check if the ball goes out of bounds
@@ -229,7 +233,6 @@ export const App: React.FC = () => {
       });
     }, 1000 / 60); // 60 FPS
 
-    // Clean up the game loop on unmount
     return () => clearInterval(gameLoop);
   }, []);
 
