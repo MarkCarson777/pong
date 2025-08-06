@@ -61,27 +61,20 @@ export const App: React.FC = () => {
     }
   };
 
+  // Countdown effect
   useEffect(() => {
     if (countdown === null) return;
 
-    // If countdown is greater than 0, decrement it every second
-    if (countdown > 0) {
-      const timer = setTimeout(() => {
+    const timer = setTimeout(() => {
+      if (countdown > 0) {
         setCountdown(countdown - 1);
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-
-    // If countdown reaches 0, remove countdown and start the game
-    if (countdown === 0) {
-      const timer = setTimeout(() => {
+      } else {
         setCountdown(null);
         isPausedRef.current = false;
-      }, 1000);
+      }
+    }, 1000);
 
-      return () => clearTimeout(timer);
-    }
+    return () => clearTimeout(timer);
   }, [countdown]);
 
   useEffect(() => {
