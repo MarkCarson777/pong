@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { GameState } from "./types/GameState";
 import { Scoreboard } from "./components/Scoreboard";
+import { useCanvasRenderer } from "./hooks/useCanvasRenderer";
 import { useKeyboardControls } from "./hooks/useKeyboardControls";
 
 // TODO: Improve computer paddle AI
@@ -9,7 +10,6 @@ import { useKeyboardControls } from "./hooks/useKeyboardControls";
 // TODO: Health points
 // TODO: Round timer
 // TODO: Improve design
-// TODO: Improve paddle collision detection
 
 // Canvas constants
 const CANVAS_WIDTH = 800;
@@ -83,54 +83,14 @@ export const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, [countdown]);
 
-  // Draw the game state on the canvas
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d");
-
-    if (!canvas || !context) return;
-
-    // Clear the canvas
-    context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    // Draw countdown if active
-    if (countdown !== null && countdown > 0) {
-      context.fillStyle = "white";
-      context.font = "48px Arial";
-      context.textAlign = "center";
-      context.textBaseline = "middle";
-      context.fillText(
-        countdown.toString(),
-        CANVAS_WIDTH / 2,
-        CANVAS_HEIGHT / 2
-      );
-    }
-
-    // Draw the player paddle
-    context.fillStyle = "white";
-    context.fillRect(0, playerYRef.current, PADDLE_WIDTH, PADDLE_HEIGHT);
-
-    // Draw the computer paddle
-    context.fillRect(
-      CANVAS_WIDTH - PADDLE_WIDTH,
-      gameState.computerY,
-      PADDLE_WIDTH,
-      PADDLE_HEIGHT
-    );
-
-    // Draw the ball
-    if (isPausedRef.current === false || countdown === 0) {
-      context.beginPath();
-      context.arc(
-        gameState.ballX + BALL_SIZE / 2,
-        gameState.ballY + BALL_SIZE / 2,
-        BALL_SIZE / 2,
-        0,
-        Math.PI * 2
-      );
-      context.fill();
-    }
-  }, [gameState, countdown, renderTrigger]);
+  useCanvasRenderer(
+    canvasRef,
+    gameState,
+    countdown,
+    renderTrigger,
+    playerYRef,
+    isPausedRef
+  );
 
   // Game loop to update the game state
   useEffect(() => {
@@ -241,7 +201,7 @@ export const App: React.FC = () => {
           ref={canvasRef}
           height={CANVAS_HEIGHT}
           width={CANVAS_WIDTH}
-          className="border-2 border-white bg-black rounded-2xl"
+          className="border-2 border-white bg-black"
           onMouseMove={handleMouseMove}
         />
         <Scoreboard

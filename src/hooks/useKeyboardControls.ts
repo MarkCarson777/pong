@@ -1,5 +1,7 @@
 import { useCallback, useEffect } from "react";
 
+// TODO: Improve to handle other keys for different controls
+
 export const useKeyboardControls = (onSpacePress: () => void) => {
   const handleKeyPress = useCallback(
     (e: KeyboardEvent) => {
